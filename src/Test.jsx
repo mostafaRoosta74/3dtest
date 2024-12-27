@@ -1,13 +1,17 @@
 import { Box, DeviceOrientationControls, OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
+import Scene from "./components/Scene";
 
 
-function Setup({ children, cameraPosition = [-5, 5, 5], controls = true }) {
+function Setup({ children, controls = true }) {
   return (
     <Canvas
       colorManagement
       shadowMap
-      camera={{ position: cameraPosition }}
+      orthographic
+        gl={{ antialias: false }}
+      camera={{ zoom: 5, position: [0, 0, 10], far: 300, near: 50 }}
+    // camera={{ near: 1, far: 1100, fov: 75 }}
       pixelRatio={window.devicePixelRatio}
     >
       {children}
@@ -26,6 +30,7 @@ export default function Test() {
         <meshBasicMaterial attach="material" wireframe />
         <axesHelper args={[100]} />
       </Box>
+      <Scene/>
     </Setup>
   );
 }

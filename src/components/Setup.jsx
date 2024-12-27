@@ -1,7 +1,7 @@
-import { OrbitControls } from "@react-three/drei";
 import { Mesh, PlaneGeometry, Group, Vector3, MathUtils,BoxGeometry,MeshBasicMaterial,AxesHelper   } from 'three'
 import { memo, useRef, useState, useLayoutEffect } from 'react'
 import { Canvas, createRoot, events, extend, useFrame } from '@react-three/fiber'
+import { Box, DeviceOrientationControls, OrbitControls } from "@react-three/drei";
 
 export function Canvas1({ children }) {
     extend({ Mesh, PlaneGeometry, Group,BoxGeometry,MeshBasicMaterial ,AxesHelper  })

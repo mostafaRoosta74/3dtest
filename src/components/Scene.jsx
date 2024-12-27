@@ -1,7 +1,7 @@
 import { Mesh, PlaneGeometry, Group, Vector3, MathUtils } from 'three'
 import { memo, useRef, useState, useLayoutEffect } from 'react'
 import { createRoot, events, extend, useFrame } from '@react-three/fiber'
-import { Box, DeviceOrientationControls, Plane, useAspect, useTexture } from '@react-three/drei'
+import { Plane, useAspect, useTexture } from '@react-three/drei'
 import {
   EffectComposer,
   DepthOfField,
@@ -12,11 +12,10 @@ import Fireflies from './Fireflies'
 import bgUrl from '../resources/bg.jpg'
 import starsUrl from '../resources/stars.png'
 import groundUrl from '../resources/ground.png'
-import bearUrl from '../resources/orthotics.png'
+import bearUrl from '../resources/bear.png'
 import leaves1Url from '../resources/leaves1.png'
 import leaves2Url from '../resources/leaves2.png'
 import '../materials/layerMaterial'
-import { Setup } from './Setup'
 
 function Experience() {
   const scaleN = useAspect(1600, 1000, 1.05)
@@ -149,19 +148,59 @@ function Effects() {
 }
 
 export default function Scene() {
-
-
-
   return (
-   <Setup camera={{ near: 1, far: 1100, fov: 75 }} controls={false}>
-      <DeviceOrientationControls />
-      {/* <Box args={[100, 100, 100, 4, 4, 4]}>
-        <meshBasicMaterial attach="material" wireframe />
-        <axesHelper args={[100]} />
-      </Box> */}
+    <>
       <Experience />
       <Effects />
-    </Setup>
+    </>
   )
 }
 
+function Canvas({ children }) {
+  extend({ Mesh, PlaneGeometry, Group })
+  const canvas = useRef(null)
+  const root = useRef(null)
+  useLayoutEffect(() => {
+    if (!root.current) {
+      root.current = createRoot(canvas.current).configure({
+        events,
+        orthographic: true,
+        gl: { antialias: false },
+        camera: { zoom: 5, position: [0, 0, 200], far: 300, near: 50 },
+        onCreated: (state) => {
+          state.events.connect(document.getElementById('root'))
+          state.setEvents({
+            compute: (event, state) => {
+              state.pointer.set(
+                (event.clientX / state.size.width) * 2 - 1,
+                -(event.clientY / state.size.height) * 2 + 1,
+              )
+              state.raycaster.setFromCamera(state.pointer, state.camera)
+            },
+          })
+        },
+      })
+    }
+    const resize = () =>
+      root.current.configure({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      })
+    window.addEventListener('resize', resize)
+    root.current.render(children)
+    return () => window.removeEventListener('resize', resize)
+  }, [children])
+
+  return (
+    <canvas
+      ref={canvas}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        display: 'block',
+      }}
+    />
+  )
+}
