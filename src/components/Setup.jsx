@@ -75,3 +75,38 @@ export function Setup({ children, cameraPosition = [-5, 5, 5], controls = true }
       </Canvas>
     );
   }
+
+
+  export const get_data = ()=> {
+    let deltaBeta = 0;
+    let deltaGamma = 0;
+    
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', function (e) {
+        const beta = (e.beta != null) ? Math.round(e.beta) : 0;
+        const gamma = (e.gamma != null) ? Math.round(e.gamma) : 0;
+    
+        deltaBeta = Math.abs(beta - deltaBeta);
+        deltaGamma = Math.abs(gamma - deltaGamma);
+    
+        $("#beta").html("Beta: " + beta);
+        $("#gamma").html("Gamma: " + gamma);
+        
+        if (Math.abs(deltaBeta) > Math.abs(Number($("#deltaBeta").html()))) {
+          $("#deltaBeta").html(deltaBeta);
+          if (Number($("#deltaBeta").html()) >= 30) {
+            $("#deltaBeta").removeAttr("class", "blue").addClass("red");
+          }
+        }
+        if (Math.abs(deltaGamma) > Math.abs(Number($("#deltaGamma").html()))) {
+          $("#deltaGamma").html(deltaGamma);
+          if (Number($("#deltaGamma").html()) >= 30) {
+            $("#deltaGamma").removeAttr("class", "blue").addClass("red");
+          }
+        }
+      }, true);
+    
+    } else {
+      $("#gamma").html("deviceorientation not supported");
+    }
+  }
