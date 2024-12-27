@@ -153,7 +153,7 @@ export default function Scene() {
 
 
   return (
-   <Setup camera={{ near: 1, far: 1100, fov: 75 }} controls={true}>
+   <Setup camera={{ near: 1, far: 1100, fov: 75 }} controls={false}>
       <DeviceOrientationControls />
       {/* <Box args={[100, 100, 100, 4, 4, 4]}>
         <meshBasicMaterial attach="material" wireframe />

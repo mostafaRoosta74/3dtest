@@ -56,6 +56,13 @@ export function Canvas1({ children }) {
 export function Setup({ children, cameraPosition = [-5, 5, 5], controls = true }) {
     return (
       <Canvas
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        display: 'block',
+      }}
         gl={{antialias:false}}
         orthographic
         //colorManagement
@@ -64,7 +71,7 @@ export function Setup({ children, cameraPosition = [-5, 5, 5], controls = true }
         //pixelRatio={window.devicePixelRatio}
       >
         {children}
-        {controls && <OrbitControls enabled={true} />}
+        {controls && <OrbitControls />}
       </Canvas>
     );
   }
