@@ -17,7 +17,7 @@ function MovingCamera() {
     const handleOrientation = (e) => {
       if (e.gamma !== null) {
         // Gamma ranges from -90 to 90, convert to -2 to 2 range
-        setPositionX(e.gamma / 45)
+        setPositionX(e.gamma / 22.5)
       }
     }
 
