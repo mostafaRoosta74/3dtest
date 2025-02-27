@@ -7,12 +7,12 @@ function MovingCamera() {
   const [positionX, setPositionX] = useState(0)
   const [touchStartX, setTouchStartX] = useState(null)
   const [touchOffsetX, setTouchOffsetX] = useState(0)
-  // const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
-  const isTouchDevice = false;
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+  // const isTouchDevice = false;
 
   // Handle device orientation (for non-touch devices)
   useEffect(() => {
-    if (isTouchDevice) return // Skip if it's a touch device
+    //if (isTouchDevice) return // Skip if it's a touch device
 
     const handleOrientation = (e) => {
       if (e.gamma !== null) {
