@@ -2,36 +2,37 @@ import React, { useRef, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 
-export default function App4() {
+export default function App() {
   const controlsRef = useRef();
-  const [angleY, setAngleY] = useState(0); // horizontal rotation from dragging
-  const [angleX, setAngleX] = useState(0); // vertical rotation from device
+  const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
 
-  // --- Dragging logic ---
   const handlePointerDown = () => setDragging(true);
-
-  const handlePointerUp = () => {
-    setDragging(false);
-    // Snap horizontal rotation to nearest 45 degrees
-    setAngleY((prev) => Math.round(prev / (Math.PI / 4)) * (Math.PI / 4));
-  };
+  const handlePointerUp = () => setDragging(false);
 
   const handlePointerMove = (event) => {
     if (dragging && event.buttons === 1) {
-      // Only change Y rotation on drag
-      const delta = event.movementX * 0.005;
-      setAngleY((prev) => prev + delta);
+      const deltaX = event.movementX * 0.005;
+      const deltaY = event.movementY * 0.005;
+      setRotation((prev) => ({
+        x: prev.x - deltaY,
+        y: prev.y + deltaX,
+      }));
     }
   };
 
-  // --- Device orientation logic (controls vertical) ---
+  // Device orientation (when not dragging)
   useEffect(() => {
     const handleOrientation = (event) => {
-      if (dragging) return; // ignore if dragging
+      if (dragging) return;
       const beta = event.beta || 0; // front/back tilt
-      const clamped = Math.max(-45, Math.min(45, beta)); // limit to avoid extreme tilt
-      setAngleX((clamped / 90) * Math.PI); // map -45..45° to about -π/2..π/2
+      const gamma = event.gamma || 0; // left/right tilt
+
+      // Map device rotation to radians
+      const xRot = (beta / 180) * Math.PI; // beta ranges roughly -180 to 180
+      const yRot = (gamma / 180) * Math.PI;
+
+      setRotation({ x: xRot, y: yRot });
     };
 
     window.addEventListener("deviceorientation", handleOrientation, true);
@@ -50,12 +51,12 @@ export default function App4() {
         <directionalLight position={[5, 5, 5]} />
 
         {/* Cube */}
-        <mesh rotation={[angleX, angleY, 0]}>
+        <mesh rotation={[rotation.x, rotation.y, 0]}>
           <boxGeometry args={[1, 1, 1]} />
           <meshStandardMaterial color="orange" />
         </mesh>
 
-        {/* Keep orbit controls disabled for user rotation */}
+        {/* Keep orbit controls disabled for custom rotation */}
         <OrbitControls ref={controlsRef} enableZoom={false} enableRotate={false} />
       </Canvas>
     </div>
