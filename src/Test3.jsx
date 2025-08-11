@@ -12,39 +12,32 @@ function Cube() {
   );
 }
 
-function BlendedControls({ gyroEnabled, driftTarget, driftStrength }) {
+function BlendedControls({ gyroEnabled }) {
   const { camera, gl } = useThree();
   const orbitRef = useRef();
   const deviceRef = useRef();
-  const targetQuaternion = useRef(new THREE.Quaternion());
+  const pivotRef = useRef(new THREE.Object3D()); // pivot around object
 
   useFrame(() => {
-    // Get device orientation if gyro is enabled
     if (gyroEnabled && deviceRef.current) {
       deviceRef.current.update();
-      targetQuaternion.current.copy(camera.quaternion);
     }
-
-    // OrbitControls update
-    if (orbitRef.current) {
+    if (orbitRef.current && !gyroEnabled) {
       orbitRef.current.update();
-    }
-
-    // Smooth blending toward target orientation
-    if (gyroEnabled) {
-      camera.quaternion.slerp(targetQuaternion.current, 0.05);
-    } else if (driftTarget && driftStrength > 0) {
-      camera.quaternion.slerp(driftTarget, 0.02 * driftStrength);
     }
   });
 
   return (
     <>
+      <group ref={pivotRef} position={[0, 0, 0]}>
+        <primitive object={camera} position={[0, 0, 5]} /> {/* camera orbiting center */}
+      </group>
       <OrbitControls
         ref={orbitRef}
         args={[camera, gl.domElement]}
         enablePan={false}
         enableZoom={true}
+        enabled={!gyroEnabled}
       />
       {gyroEnabled && (
         <DeviceOrientationControls ref={deviceRef} args={[camera]} />
@@ -55,9 +48,6 @@ function BlendedControls({ gyroEnabled, driftTarget, driftStrength }) {
 
 export default function App2() {
   const [gyroEnabled, setGyroEnabled] = useState(false);
-  const [driftTarget, setDriftTarget] = useState(null);
-  const [driftStrength, setDriftStrength] = useState(0);
-  const cameraRef = useRef();
 
   const toggleGyro = async () => {
     if (
@@ -68,37 +58,14 @@ export default function App2() {
       try {
         const permission = await DeviceMotionEvent.requestPermission();
         if (permission !== "granted") {
-          alert("Motion permission denied. Cannot enable gyroscope.");
+          alert("Motion permission denied.");
           return;
         }
       } catch (err) {
-        console.error("Error requesting motion permission:", err);
+        console.error(err);
         return;
       }
     }
-
-    if (gyroEnabled && cameraRef.current) {
-      const q = new THREE.Quaternion().copy(cameraRef.current.quaternion);
-      setDriftTarget(q);
-      setDriftStrength(1);
-
-      // Gradually fade drift
-      let fade = 1;
-      const fadeInterval = setInterval(() => {
-        fade -= 0.05;
-        if (fade <= 0) {
-          setDriftStrength(0);
-          setDriftTarget(null);
-          clearInterval(fadeInterval);
-        } else {
-          setDriftStrength(fade);
-        }
-      }, 100);
-    } else {
-      setDriftTarget(null);
-      setDriftStrength(0);
-    }
-
     setGyroEnabled((prev) => !prev);
   };
 
@@ -123,18 +90,11 @@ export default function App2() {
         {gyroEnabled ? "Disable Gyro" : "Enable Gyro"}
       </button>
 
-      <Canvas
-        camera={{ position: [3, 3, 3], fov: 60 }}
-        onCreated={({ camera }) => (cameraRef.current = camera)}
-      >
+      <Canvas camera={{ position: [0, 0, 5], fov: 60 }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 5, 5]} />
         <Cube />
-        <BlendedControls
-          gyroEnabled={gyroEnabled}
-          driftTarget={driftTarget}
-          driftStrength={driftStrength}
-        />
+        <BlendedControls gyroEnabled={gyroEnabled} />
       </Canvas>
     </>
   );
