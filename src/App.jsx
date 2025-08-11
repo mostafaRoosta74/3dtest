@@ -2,6 +2,7 @@ import Scene from './components/Scene'
 import Test from './Test'
 import Text2 from './Test2'
 import App2 from './Test3'
+import App3 from './Test4'
 
 export default function App() {
   return (
@@ -9,7 +10,8 @@ export default function App() {
       {/* <Scene /> */}
       {/* <Test/> */}
       {/* <Text2 /> */}
-      <App2/>
+      {/* <App2/> */}
+      <App3/>
     </>
   )
 }
